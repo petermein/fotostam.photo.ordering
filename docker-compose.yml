@@ -46,6 +46,7 @@ services:
       - fotostam
   thumbor:
     image: apsl/thumbor
+    container_name: fotostam_thumbor
     environment:
       - RESULT_STORAGE_STORES_UNSAFE=True
       - DETECTORS=['thumbor.detectors.queued_detector.queued_complete_detector','thumbor.detectors.feature_detector','thumbor.detectors.face_detector']
@@ -78,6 +79,7 @@ services:
       - fotostam
   nginx:
     image: apsl/thumbor-nginx
+    container_name: fotostam_thumbor_nginx
     links:
       - thumbor:thumbor
     volumes_from:
@@ -89,6 +91,7 @@ services:
       - fotostam
   remotecv:
     image: apsl/remotecv
+    container_name: fotostam_remotecv
     links:
       - redis:redis
     environment:
@@ -99,10 +102,12 @@ services:
       - fotostam
   redis:
     image: redis:latest
+    container_name: fotostam_redis
     networks:
       - fotostam
   prisma:
     image: prismagraphql/prisma:1.32 
+    container_name: fotostam_prisma
     restart: always
     ports:
     - "4466:4466"
@@ -112,7 +117,7 @@ services:
         databases:
           default:
             connector: mysql
-            host: db
+            host: mysql
             port: 3306
             user: root
             password: prisma
@@ -121,6 +126,7 @@ services:
       - fotostam
   mysql:
     image: mysql:5.7
+    container_name: fotostam_mysql
     restart: always
     command: mysqld
     environment:
@@ -130,6 +136,14 @@ services:
       - mysql:/var/lib/mysql
     ports:
     - "3306:3306"
+    networks:
+      - fotostam
+  adminer:
+    image:  adminer:4.7-standalone
+    container_name: fotostam_adminer
+    restart: unless-stopped
+    ports:
+      - 8081:8080
     networks:
       - fotostam
 
