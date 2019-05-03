@@ -13,7 +13,7 @@ services:
       - fotostam
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.0.1
+    build: ./docker/elasticsearch
     container_name: fotostam_elasticsearch
     environment:
       - node.name=es01
