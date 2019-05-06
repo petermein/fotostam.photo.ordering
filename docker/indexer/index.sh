@@ -32,33 +32,36 @@ generate_mapping() {
 EOF
 }
 
-DIRECTORY=../../data/bucket/
+DIRECTORY=/data/bucket/
 
-printf "Deleting index \n"
-curl -H "Content-Type: application/json" -XDELETE "http://localhost:9200/fotoindex" 
-printf "Creating index \n";
-curl -H "Content-Type: application/json" -XPUT "http://localhost:9200/fotoindex?include_type_name=true" -d "$(generate_mapping)"
-printf "\n"
-printf "Starting index \n"
-for file in ${DIRECTORY}*
+while true
 do
-    if file "$file" |grep -qE 'image|bitmap'; then
-        hash=$(sha1sum $file)
-        printf "Indexing $file with index $hash \n"
-        
-        #image data
-        height=`identify -format "%h" $file`
-        width=`identify -format "%w" $file`
-        size=`identify -format "%b" $file`
-        time=`identify -format "%[EXIF:DateTime]" $file`
-                echo $time
 
-        camera=`identify -format "%[EXIF:Make] %[EXIF:Model]" $file`
+  printf "Deleting index \n"
+  # curl -H "Content-Type: application/json" -XDELETE "${ELASTICSEARCH_HOST}fotoindex" 
+  printf "Creating index \n";
+  curl -H "Content-Type: application/json" -XPUT "${ELASTICSEARCH_HOST}fotoindex?include_type_name=true" -d "$(generate_mapping)"
+  printf "\n"
+  printf "Starting index \n"
+  for file in ${DIRECTORY}*
+  do
+      if file "$file" |grep -qE 'image|bitmap'; then
+          hash=$(sha1sum $file)
+          printf "Indexing $file with index $hash \n"
+          
+          #image data
+          height=`identify -format "%h" $file`
+          width=`identify -format "%w" $file`
+          size=`identify -format "%b" $file`
+          time=`identify -format "%[EXIF:DateTime]" $file`
+                  echo $time
 
-        curl -H "Content-Type: application/json" -XPOST "http://localhost:9200/fotoindex/_doc/$hash_" -d "$(file_data)"
-        printf "\n"
-    fi
+          camera=`identify -format "%[EXIF:Make] %[EXIF:Model]" $file`
+
+          curl -H "Content-Type: application/json" -XPOST "${ELASTICSEARCH_HOST}fotoindex/_doc/$hash_" -d "$(file_data)"
+          printf "\n"
+      fi
+  done
+  sleep 1m;
 done
-
-
 

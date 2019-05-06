@@ -138,6 +138,18 @@ services:
     - "3306:3306"
     networks:
       - fotostam
+
+  indexer:
+    build: ./docker/indexer
+    container_name: fotostam_indexer
+    restart: unless-stopped
+    environment:
+      ELASTICSEARCH_HOST: http://fotostam_elasticsearch:9200/
+    volumes_from:
+      - minio
+    networks:
+      - fotostam
+
   adminer:
     image:  adminer:4.7-standalone
     container_name: fotostam_adminer
