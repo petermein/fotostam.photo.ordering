@@ -163,6 +163,8 @@ services:
     build: ./docker/apollo
     container_name: fotostam_apollo
     restart: unless-stopped
+    environment:
+      ELASTICSEARCH_HOST: http://fotostam_elasticsearch:9200/
     ports:
       - 4000:4000
     volumes:
