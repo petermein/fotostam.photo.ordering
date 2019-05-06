@@ -159,6 +159,27 @@ services:
     networks:
       - fotostam
 
+  apollo:
+    build: ./docker/apollo
+    container_name: fotostam_apollo
+    restart: unless-stopped
+    ports:
+      - 4000:4000
+    volumes:
+      - ../prisma-server:/app
+    networks:
+      - fotostam
+
+  client:
+    build: ./docker/client
+    container_name: fotostam_client
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    volumes:
+      - ../fotostam-client:/app
+    networks:
+      - fotostam
 volumes:
   esdata01:
     driver: local
